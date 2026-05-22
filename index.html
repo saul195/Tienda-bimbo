@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bimbo | Gestión de Tienda</title>
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GZ6BE4J7C8"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
     <link rel="stylesheet" href="Styles/style.css">
     <link rel="stylesheet" href="Styles/nav.css">
     <link rel="stylesheet" href="Styles/ticket.css">
@@ -432,11 +441,11 @@
         <div class="login-card">
             <div class="login-lock">🔐</div>
             <h1>Tienda Bimbo</h1>
-            <p>Ingresa la contraseña para acceder</p>
-            <input type="password" id="loginPassword" placeholder="Contraseña"
-                onkeydown="if(event.key==='Enter')doLogin()">
+            <p id="loginSubtitle">Ingresa la contraseña para acceder</p>
+            <input type="password" id="loginPassword" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
             <button onclick="doLogin()">Entrar</button>
             <div class="login-error" id="loginError">Contraseña incorrecta</div>
+            <div class="login-error" id="loginTimeError" style="display:none">El sistema solo está disponible de <strong>8:00 AM a 8:00 PM</strong></div>
         </div>
     </div>
 
@@ -1134,18 +1143,72 @@
 
             // ========= LOGIN =========
             const APP_PASSWORD = 'admin19505';
+            const OPEN_HOUR = 8;
+            const CLOSE_HOUR = 20;
+            const INACTIVITY_MS = 300000;
+
+            let inactivityTimer = null;
+
+            function isWithinHours() {
+                const h = new Date().getHours();
+                return h >= OPEN_HOUR && h < CLOSE_HOUR;
+            }
+
+            function showTimeError() {
+                document.getElementById('loginPassword').style.display = 'none';
+                document.querySelector('.login-card button').style.display = 'none';
+                document.getElementById('loginSubtitle').textContent = 'Horario no disponible';
+                document.getElementById('loginTimeError').style.display = 'block';
+                document.getElementById('loginError').classList.remove('show');
+            }
 
             function checkSession() {
                 return sessionStorage.getItem('tiendabimbo_session') === '1';
             }
 
+            function initApp() {
+                const initialView = getViewFromHash();
+                navigateTo(initialView);
+                window.addEventListener('hashchange', () => {
+                    navigateTo(getViewFromHash());
+                });
+                resetInactivityTimer();
+            }
+
+            function resetInactivityTimer() {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(lockApp, INACTIVITY_MS);
+            }
+
+            function lockApp() {
+                sessionStorage.removeItem('tiendabimbo_session');
+                cart = [];
+                document.getElementById('appWrapper').classList.remove('show');
+                document.getElementById('loginOverlay').classList.remove('hidden');
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginPassword').style.display = 'block';
+                document.querySelector('.login-card button').style.display = 'block';
+                document.getElementById('loginSubtitle').textContent = 'Sesión cerrada por inactividad. Ingresa la contraseña.';
+                document.getElementById('loginError').classList.remove('show');
+                document.getElementById('loginTimeError').style.display = 'none';
+                document.getElementById('loginPassword').focus();
+            }
+
             function doLogin() {
+                if (!isWithinHours()) {
+                    showTimeError();
+                    return;
+                }
                 const pwd = document.getElementById('loginPassword').value;
                 if (pwd === APP_PASSWORD) {
                     sessionStorage.setItem('tiendabimbo_session', '1');
                     document.getElementById('loginOverlay').classList.add('hidden');
                     document.getElementById('appWrapper').classList.add('show');
                     document.getElementById('barcodeInput')?.focus();
+                    document.addEventListener('mousedown', resetInactivityTimer);
+                    document.addEventListener('keydown', resetInactivityTimer);
+                    document.addEventListener('touchstart', resetInactivityTimer);
+                    initApp();
                 } else {
                     document.getElementById('loginError').classList.add('show');
                     document.getElementById('loginPassword').value = '';
@@ -1154,17 +1217,17 @@
             }
 
             if (checkSession()) {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('appWrapper').classList.add('show');
-            }
-
-            // ========= INIT =========
-            if (checkSession()) {
-                const initialView = getViewFromHash();
-                navigateTo(initialView);
-                window.addEventListener('hashchange', () => {
-                    navigateTo(getViewFromHash());
-                });
+                if (!isWithinHours()) {
+                    sessionStorage.removeItem('tiendabimbo_session');
+                    showTimeError();
+                } else {
+                    document.getElementById('loginOverlay').classList.add('hidden');
+                    document.getElementById('appWrapper').classList.add('show');
+                    document.addEventListener('mousedown', resetInactivityTimer);
+                    document.addEventListener('keydown', resetInactivityTimer);
+                    document.addEventListener('touchstart', resetInactivityTimer);
+                    initApp();
+                }
             }
         </script>
 
