@@ -325,6 +325,25 @@ h2 {
     border-color: #dc3545;
 }
 
+.cash-input {
+    width: 100px;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    text-align: right;
+    outline: none;
+}
+
+.cash-input:focus {
+    border-color: rgb(13, 71, 161);
+}
+
+.cambio-display {
+    color: #2e7d32;
+    font-size: 1rem;
+}
+
 footer {
     text-align: center;
     padding: 2rem;
@@ -333,6 +352,19 @@ footer {
     border-top: 1px solid #ddd;
     color: #666;
     font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .barcode-input-group input { font-size: 1rem; padding: 12px 14px; }
+    .barcode-input-group button { padding: 12px; width: 100%; }
+    .product-card { padding: 10px; }
+    .product-card-name { font-size: 0.8rem; }
+    .product-card-price { font-size: 0.95rem; }
+    .cart-item { padding: 8px 10px; }
+    .cart-item-controls { flex-wrap: wrap; }
+    .btn-checkout, .btn-clear { padding: 12px; font-size: 1rem; }
+    .cash-input { width: 80px; font-size: 0.85rem; }
+    .cambio-display { font-size: 0.9rem; }
 }
 
 @media (max-width: 900px) {
@@ -346,4 +378,12 @@ footer {
     .product-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
+}
+
+@media (max-width: 480px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .product-card { padding: 8px; }
+    .product-card-name { font-size: 0.75rem; }
+    .product-card-price { font-size: 0.85rem; }
+    .product-card-stock { font-size: 0.65rem; }
 }

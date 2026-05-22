@@ -73,3 +73,25 @@
     border-right: 8px solid transparent;
     border-top: 8px solid rgb(229, 57, 53);
 }
+
+.navbar .brand {
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .navbar { padding: 0.5rem 1rem; flex-wrap: wrap; gap: 0.3rem; }
+    .brand { font-size: 1rem; gap: 8px; }
+    .brand span { font-size: 0.85rem; }
+    .nav-logo { height: 32px; }
+    .nav-menu { gap: 5px; }
+    .nav-link { font-size: 0.85rem; padding: 4px 8px; }
+    .nav-link.active::after { bottom: -8px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid rgb(229, 57, 53); }
+}
+
+@media (max-width: 480px) {
+    .navbar { padding: 0.3rem 0.5rem; }
+    .brand span { display: none; }
+    .nav-logo { height: 28px; }
+    .nav-link { font-size: 0.78rem; padding: 3px 6px; }
+    .nav-menu { gap: 3px; }
+}

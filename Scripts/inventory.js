@@ -264,6 +264,9 @@ const Ticket = {
           `).join('')}
         </table>
         <div class="totals">
+          ${sale.recibo ? `
+          <div class="row"><span>Recibo:</span><span>$${Number(sale.recibo).toFixed(2)}</span></div>
+          <div class="row"><span>Cambio:</span><span>$${Number(sale.cambio).toFixed(2)}</span></div>` : ''}
           <div class="row total"><span>TOTAL:</span><span>$${sale.total.toFixed(2)}</span></div>
         </div>
         <div class="barcode">${sale.id}</div>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bimbo | Reportes</title>
+    <link rel="stylesheet" href="Styles/style.css">
+    <link rel="stylesheet" href="Styles/nav.css">
+    <link rel="stylesheet" href="Styles/reports.css">
+</head>
+
+<body>
+
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-lock">🔐</div>
+            <h1>Tienda Bimbo</h1>
+            <p id="loginSubtitle">Ingresa la contraseña para acceder</p>
+            <input type="password" id="loginPassword" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+            <button onclick="doLogin()">Entrar</button>
+            <div class="login-error" id="loginError">Contraseña incorrecta</div>
+            <div class="login-error" id="loginTimeError" style="display:none">El sistema solo está disponible de <strong>8:00 AM a 8:00 PM</strong></div>
+        </div>
+    </div>
+
+    <div class="app-wrapper" id="appWrapper">
+
+        <nav class="navbar">
+            <div class="brand" onclick="location.href='index.html'">
+                <img src="logo-bimbo.png" alt="Bimbo" class="nav-logo">
+                <span>Reportes</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a class="nav-link" href="index.html">Comprar</a></li>
+                <li><a class="nav-link" href="inventario.html">Inventario</a></li>
+                <li><a class="nav-link active" href="reportes.html">Reportes</a></li>
+            </ul>
+        </nav>
+
+        <main class="container">
+            <section class="section-card">
+                <h2>Reportes de Ventas e Inventario</h2>
+
+                <div class="reports-section-title">Ventas</div>
+                <div class="reports-summary">
+                    <div class="report-stat">
+                        <span>Ventas del Día</span>
+                        <strong id="todaySales" style="color:#2e7d32">0</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Ingresos del Día</span>
+                        <strong id="todayRevenue" style="color:#2e7d32">$0.00</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Ventas Totales</span>
+                        <strong id="totalSales">0</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Ingresos Totales</span>
+                        <strong id="totalRevenue" style="color:#2e7d32">$0.00</strong>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>Productos Más Vendidos</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Producto</th>
+                                <th>Unidades Vendidas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topProductsBody"></tbody>
+                    </table>
+                    <p class="table-empty" id="noTopProducts">Aún no hay ventas registradas</p>
+                </div>
+
+                <hr class="report-divider">
+
+                <div class="reports-section-title">Inventario</div>
+                <div class="reports-summary">
+                    <div class="report-stat">
+                        <span>Total de Productos</span>
+                        <strong id="totalProducts">0</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Stock Total (unidades)</span>
+                        <strong id="totalStock">0</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Por Vencer (7 días)</span>
+                        <strong id="expiringSoon" style="color:#e65100">0</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Vencidos</span>
+                        <strong id="expired" style="color:#c62828">0</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Stock Bajo</span>
+                        <strong id="lowStock" style="color:#c62828">0</strong>
+                    </div>
+                    <div class="report-stat">
+                        <span>Valor del Inventario</span>
+                        <strong id="totalValue" style="color:#2e7d32">$0.00</strong>
+                    </div>
+                </div>
+                <div class="report-tables">
+                    <div class="report-section">
+                        <h3>Productos por Vencer (próximos 7 días)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Stock</th>
+                                    <th>Caducidad</th>
+                                    <th>Días</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expiringBody"></tbody>
+                        </table>
+                        <p class="table-empty" id="noExpiring">Sin productos próximos a vencer</p>
+                    </div>
+                    <div class="report-section">
+                        <h3>Stock Bajo</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Stock</th>
+                                    <th>Mínimo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lowStockBody"></tbody>
+                        </table>
+                        <p class="table-empty" id="noLowStock">Sin productos con stock bajo</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Proyecto Bimbo - Equipo de Desarrollo</p>
+        </footer>
+
+    </div>
+
+    <script src="Scripts/inventory.js"></script>
+    <script src="Scripts/reports.js"></script>
+    <script src="Scripts/auth.js"></script>
+</body>
+
+</html>

@@ -180,11 +180,19 @@ footer {
     font-size: 0.85rem;
 }
 
+@media (max-width: 768px) {
+    .reports-summary { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .report-stat { padding: 1rem; }
+    .report-stat strong { font-size: 1.3rem; }
+    .report-section h3 { font-size: 0.95rem; }
+    .reports-section-title { font-size: 0.85rem; }
+}
+
 @media (max-width: 600px) {
-    .reports-summary {
-        grid-template-columns: 1fr 1fr;
-    }
-    .report-stat strong {
-        font-size: 1.4rem;
-    }
+    .reports-summary { grid-template-columns: 1fr 1fr; }
+    .report-stat strong { font-size: 1.4rem; }
+}
+
+@media (max-width: 480px) {
+    .reports-summary { grid-template-columns: 1fr; gap: 8px; }
 }
