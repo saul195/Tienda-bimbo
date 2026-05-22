@@ -161,6 +161,8 @@
             display: flex;
         }
 
+        .inv-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
         @media (max-width: 768px) {
             body {
                 padding-top: 60px;
@@ -489,8 +491,6 @@
                             <div class="cart-empty">El carrito está vacío</div>
                         </div>
                         <div class="cart-summary" id="cartSummary" style="display:none">
-                            <div class="summary-row"><span>Subtotal:</span><span id="subtotal">$0.00</span></div>
-                            <div class="summary-row"><span>IVA (16%):</span><span id="tax">$0.00</span></div>
                             <div class="summary-row total-row"><span>TOTAL:</span><span id="total">$0.00</span></div>
                             <button class="btn-checkout" onclick="checkout()">Cobrar e Imprimir Ticket</button>
                             <button class="btn-clear" onclick="clearCart()">Vaciar Carrito</button>
@@ -506,7 +506,12 @@
                 <section class="section-card">
                     <div class="inventory-header">
                         <h2>Inventario de Productos</h2>
-                        <button class="btn btn-primary" onclick="openModal()">+ Registrar Producto</button>
+                        <div class="inv-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="exportarInventario()">Exportar</button>
+                            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">Importar</button>
+                            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarInventario(event)">
+                            <button class="btn btn-primary" onclick="openModal()">+ Registrar</button>
+                        </div>
                     </div>
                     <div class="inventory-tools">
                         <div class="search-box">
@@ -761,7 +766,7 @@
                 if (e.key === 'Enter') addByBarcode();
             });
 
-            function addByBarcode() {
+            function addByBarcode(focusInput) {
                 const input = document.getElementById('barcodeInput');
                 const code = input.value.trim();
                 if (!code) return;
@@ -769,13 +774,13 @@
                 if (!product) {
                     alert('Producto no encontrado. Verifica el código o regístralo en Inventario.');
                     input.value = '';
-                    input.focus();
+                    if (focusInput !== false) input.focus();
                     return;
                 }
                 if (product.stock <= 0) {
                     alert(`"${product.name}" no tiene stock disponible.`);
                     input.value = '';
-                    input.focus();
+                    if (focusInput !== false) input.focus();
                     return;
                 }
                 const existing = cart.find(c => c.barcode === product.barcode);
@@ -783,7 +788,7 @@
                     if (existing.qty >= product.stock) {
                         alert(`Stock insuficiente de "${product.name}" (disponible: ${product.stock})`);
                         input.value = '';
-                        input.focus();
+                        if (focusInput !== false) input.focus();
                         return;
                     }
                     existing.qty++;
@@ -791,14 +796,14 @@
                     cart.push({ barcode: product.barcode, name: product.name, price: product.price, qty: 1 });
                 }
                 input.value = '';
-                input.focus();
+                if (focusInput !== false) input.focus();
                 renderCart();
                 renderProductGrid();
             }
 
             function addToCart(barcode) {
                 document.getElementById('barcodeInput').value = barcode;
-                addByBarcode();
+                addByBarcode(false);
             }
 
             function updateQty(barcode, delta) {
@@ -846,11 +851,7 @@
                     </div>
                 </div>
             `).join('');
-                const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-                const tax = subtotal * 0.16;
-                const total = subtotal + tax;
-                document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-                document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+                const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
                 document.getElementById('total').textContent = `$${total.toFixed(2)}`;
             }
 
@@ -898,8 +899,6 @@
                     id: sale.id,
                     date: sale.date.toISOString(),
                     items: sale.items.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
-                    subtotal: sale.subtotal,
-                    tax: sale.tax,
                     total: sale.total,
                 });
                 Ticket.print(sale);
@@ -1067,6 +1066,38 @@
                 Store.delete(barcode);
                 renderInventoryTable();
                 renderProductGrid();
+            }
+
+            // ========= EXPORTAR / IMPORTAR =========
+            function exportarInventario() {
+                const data = Store.getAll();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'inventario_' + new Date().toISOString().slice(0, 10) + '.json';
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }
+
+            function importarInventario(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (!Array.isArray(data)) throw new Error('Formato inválido');
+                        if (!confirm('¿Importar ' + data.length + ' productos? Se reemplazará todo el inventario actual.')) return;
+                        localStorage.setItem(Store.STORAGE_KEY, JSON.stringify(data));
+                        renderInventoryTable();
+                        renderProductGrid();
+                        alert('Inventario importado correctamente (' + data.length + ' productos)');
+                    } catch (err) {
+                        alert('Error al importar: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+                e.target.value = '';
             }
 
             // ========= VISTA: REPORTES =========

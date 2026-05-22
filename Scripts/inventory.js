@@ -178,14 +178,12 @@ const Store = {
     samples.forEach((s, i) => {
       const date = new Date();
       date.setHours(date.getHours() - (samples.length - i));
-      const subtotal = s.items.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const total = s.items.reduce((sum, item) => sum + item.price * item.qty, 0);
       this.addSale({
         id: Date.now().toString(36).toUpperCase() + i,
         date: date.toISOString(),
         items: s.items,
-        subtotal,
-        tax: subtotal * 0.16,
-        total: subtotal * 1.16,
+        total,
       });
     });
   },
@@ -212,15 +210,13 @@ const Store = {
 
 const Ticket = {
   createSale(items) {
-    const sale = {
+    const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+    return {
       id: Date.now().toString(36).toUpperCase(),
       date: new Date(),
       items: items.map(i => ({ ...i })),
-      subtotal: items.reduce((s, i) => s + i.price * i.qty, 0),
+      total,
     };
-    sale.tax = sale.subtotal * 0.16;
-    sale.total = sale.subtotal + sale.tax;
-    return sale;
   },
 
   print(sale, storeName = 'Tienda Bimbo - Expendio') {
@@ -268,8 +264,6 @@ const Ticket = {
           `).join('')}
         </table>
         <div class="totals">
-          <div class="row"><span>Subtotal:</span><span>$${sale.subtotal.toFixed(2)}</span></div>
-          <div class="row"><span>IVA (16%):</span><span>$${sale.tax.toFixed(2)}</span></div>
           <div class="row total"><span>TOTAL:</span><span>$${sale.total.toFixed(2)}</span></div>
         </div>
         <div class="barcode">${sale.id}</div>
