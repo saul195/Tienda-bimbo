@@ -338,6 +338,7 @@ footer {
 @media (max-width: 900px) {
     .pos-container {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     .cart-card {
         position: static;

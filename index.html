@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bimbo | Gestión de Tienda</title>
 
-    <link rel="stylesheet" href="../Styles/style.css">
-    <link rel="stylesheet" href="../Styles/nav.css">
-    <link rel="stylesheet" href="../Styles/ticket.css">
-    <link rel="stylesheet" href="../Styles/inventory.css">
-    <link rel="stylesheet" href="../Styles/reports.css">
+    <link rel="stylesheet" href="Styles/style.css">
+    <link rel="stylesheet" href="Styles/nav.css">
+    <link rel="stylesheet" href="Styles/ticket.css">
+    <link rel="stylesheet" href="Styles/inventory.css">
+    <link rel="stylesheet" href="Styles/reports.css">
 
     <style>
         body { padding-top: 70px; }
@@ -38,6 +38,70 @@
         }
 
         .duplicate-warning.show { display: flex; }
+
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .navbar { padding: 0.5rem 1rem; flex-wrap: wrap; gap: 0.3rem; }
+            .brand { font-size: 1rem; gap: 8px; }
+            .brand span { font-size: 0.85rem; }
+            .nav-logo { height: 32px; }
+            .nav-menu { gap: 5px; }
+            .nav-link { font-size: 0.85rem; padding: 4px 8px; }
+            .nav-link.active::after { bottom: -8px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid rgb(229, 57, 53); }
+            .container, .container-scanner { padding: 0 10px; margin: 1rem auto; }
+            .section-card { padding: 1rem; }
+            h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+            .barcode-input-group { flex-direction: column; }
+            .barcode-input-group input { font-size: 1rem; padding: 12px 14px; }
+            .barcode-input-group button { padding: 12px; width: 100%; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .product-card { padding: 10px; }
+            .product-card-name { font-size: 0.8rem; }
+            .product-card-price { font-size: 0.95rem; }
+            .cart-item { padding: 8px 10px; }
+            .cart-item-controls { flex-wrap: wrap; }
+            .btn-checkout, .btn-clear { padding: 12px; font-size: 1rem; }
+            .data-table th, .data-table td { padding: 8px 6px; font-size: 0.75rem; white-space: nowrap; }
+            .table-wrapper { margin: 0 -0.5rem; }
+            .inventory-tools .search-box { min-width: 100%; }
+            .filter-group select { min-width: 100%; font-size: 0.85rem; }
+            .reports-summary { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .report-stat { padding: 1rem; }
+            .report-stat strong { font-size: 1.3rem; }
+            .report-section h3 { font-size: 0.95rem; }
+            .modal-content { width: 100%; max-width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; padding: 1.5rem 1rem; }
+            .modal-header h3 { font-size: 1.1rem; }
+            .form-group input, .form-group select { font-size: 0.9rem; padding: 10px; }
+            .form-row { gap: 0; }
+            .form-actions { flex-direction: column; }
+            .form-actions button { width: 100%; }
+            footer { font-size: 0.75rem; padding: 1rem; }
+            .scanner-result-body { grid-template-columns: 1fr; }
+            .reports-section-title { font-size: 0.85rem; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding-top: 54px; }
+            .navbar { padding: 0.3rem 0.5rem; }
+            .brand span { display: none; }
+            .nav-logo { height: 28px; }
+            .nav-link { font-size: 0.78rem; padding: 3px 6px; }
+            .nav-menu { gap: 3px; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .product-card { padding: 8px; }
+            .product-card-name { font-size: 0.75rem; }
+            .product-card-price { font-size: 0.85rem; }
+            .product-card-stock { font-size: 0.65rem; }
+            .reports-summary { grid-template-columns: 1fr; gap: 8px; }
+            .data-table th, .data-table td { padding: 6px 4px; font-size: 0.7rem; }
+            .barcode-display { font-size: 0.7rem; padding: 2px 5px; }
+            .modal-content { padding: 1rem 0.8rem; }
+            .form-group label { font-size: 0.8rem; }
+            h2 { font-size: 1rem; }
+            .badge { font-size: 0.65rem; padding: 2px 6px; }
+            .btn-sm { padding: 4px 8px; font-size: 0.7rem; }
+            .inventory-header h2 { font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -291,7 +355,7 @@
         <p>&copy; 2026 Proyecto Bimbo - Equipo de Desarrollo</p>
     </footer>
 
-    <script src="../Scripts/inventory.js"></script>
+    <script src="Scripts/inventory.js"></script>
     <script>
         Store.seedIfEmpty();
         Store.seedSampleSales();
