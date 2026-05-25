@@ -365,6 +365,9 @@ footer {
     .btn-checkout, .btn-clear { padding: 12px; font-size: 1rem; }
     .cash-input { width: 80px; font-size: 0.85rem; }
     .cambio-display { font-size: 0.9rem; }
+    .pos-container { padding: 0 10px; }
+    .section-card { padding: 1rem; }
+    .pos-left .section-card, .pos-right .section-card { padding: 1rem; }
 }
 
 @media (max-width: 900px) {
@@ -381,9 +384,34 @@ footer {
 }
 
 @media (max-width: 480px) {
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-    .product-card { padding: 8px; }
-    .product-card-name { font-size: 0.75rem; }
-    .product-card-price { font-size: 0.85rem; }
-    .product-card-stock { font-size: 0.65rem; }
+    .pos-container { margin: 0.5rem auto; padding: 0 6px; gap: 0.5rem; }
+    .section-card { padding: 0.8rem; }
+    h2 { font-size: 1rem; margin-bottom: 0.8rem; }
+    .barcode-input-group { flex-direction: column; gap: 0.3rem; }
+    .barcode-input-group input { font-size: 0.9rem; padding: 10px 12px; }
+    .barcode-input-group button { padding: 10px; font-size: 0.9rem; }
+    #searchInput { font-size: 0.85rem; padding: 8px 12px; margin-bottom: 0.6rem; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 5px; }
+    .product-card { padding: 6px; }
+    .product-card-name { font-size: 0.7rem; margin-bottom: 3px; }
+    .product-card-price { font-size: 0.8rem; }
+    .product-card-stock { font-size: 0.6rem; }
+    .exp-warning { font-size: 0.6rem; padding: 1px 5px; }
+    .cart-card { padding: 0.8rem; }
+    .cart-items { max-height: 250px; }
+    .cart-item { padding: 6px 8px; }
+    .cart-item-info strong { font-size: 0.8rem; }
+    .cart-item-price { font-size: 0.7rem; }
+    .qty-btn { width: 24px; height: 24px; font-size: 0.85rem; }
+    .qty-display { font-size: 0.85rem; min-width: 18px; }
+    .cart-item-total { font-size: 0.8rem; }
+    .remove-btn { font-size: 1.1rem; }
+    .summary-row { font-size: 0.85rem; }
+    .total-row { font-size: 1rem; }
+    .cash-input { width: 70px; font-size: 0.8rem; padding: 3px 6px; }
+    .cambio-display { font-size: 0.85rem; }
+    .btn-checkout { padding: 10px; font-size: 0.95rem; }
+    .btn-clear { padding: 8px; font-size: 0.8rem; }
+    .hint { font-size: 0.75rem; }
+    .cart-empty { padding: 1rem; font-size: 0.85rem; }
 }

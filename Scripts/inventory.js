@@ -155,6 +155,84 @@ const Store = {
     return this.getSales().find(s => s.id.toUpperCase() === id.toUpperCase().trim()) || null;
   },
 
+  getSalesByDateRange(startDate, endDate) {
+    return this.getSales().filter(s => {
+      const d = new Date(s.date);
+      return d >= startDate && d <= endDate;
+    });
+  },
+
+  getSalesByPeriod(period) {
+    const result = [];
+    const now = new Date();
+    if (period === 'day') {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() - i);
+        const next = new Date(d.getTime() + 86400000);
+        const sales = this.getSalesByDateRange(d, next);
+        const label = d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+        result.push({ label, total: sales.reduce((s, sale) => s + sale.total, 0), count: sales.length });
+      }
+    } else if (period === 'week') {
+      for (let i = 3; i >= 0; i--) {
+        const end = new Date(now);
+        end.setHours(23, 59, 59, 999);
+        end.setDate(end.getDate() - (i * 7) + (6 - end.getDay()));
+        const start = new Date(end);
+        start.setDate(end.getDate() - 6);
+        start.setHours(0, 0, 0, 0);
+        const sales = this.getSalesByDateRange(start, end);
+        const label = 'Sem ' + (new Date(end).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }));
+        result.push({ label, total: sales.reduce((s, sale) => s + sale.total, 0), count: sales.length });
+      }
+    } else if (period === 'month') {
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const end = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+        const sales = this.getSalesByDateRange(d, end);
+        const label = d.toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+        result.push({ label, total: sales.reduce((s, sale) => s + sale.total, 0), count: sales.length });
+      }
+    }
+    return result;
+  },
+
+  getTopProductsByRange(startDate, endDate, limit = 5) {
+    const sales = this.getSalesByDateRange(startDate, endDate);
+    const counts = {};
+    sales.forEach(s => {
+      s.items.forEach(i => {
+        counts[i.name] = (counts[i.name] || 0) + i.qty;
+      });
+    });
+    return Object.entries(counts)
+      .map(([name, qty]) => ({ name, qty }))
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, limit);
+  },
+
+  resetAllData() {
+    localStorage.removeItem(this.STORAGE_KEY);
+    localStorage.removeItem(this.SALES_KEY);
+    localStorage.removeItem(this.CATEGORIES_KEY);
+  },
+
+  reprintSale(saleId) {
+    const data = this.getSaleById(saleId);
+    if (!data) return null;
+    const sale = {
+      id: data.id,
+      date: new Date(data.date),
+      items: data.items.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+      total: data.total,
+      recibo: data.recibo,
+      cambio: data.cambio,
+    };
+    return sale;
+  },
+
   getSalesSummary() {
     const sales = this.getSales();
     const totalSales = sales.length;
@@ -205,6 +283,72 @@ const Store = {
       p.createdAt = new Date().toISOString();
     });
     this.save(sample);
+  }
+};
+
+const Notifications = {
+  container: null,
+
+  init() {
+    this.container = document.createElement('div');
+    this.container.className = 'notification-container';
+    document.body.appendChild(this.container);
+  },
+
+  show(title, messages, type = 'warning') {
+    if (!this.container) this.init();
+    const toast = document.createElement('div');
+    toast.className = `notification-toast notification-${type}`;
+    const icon = type === 'danger' ? '🚫' : type === 'warning' ? '⚠️' : 'ℹ️';
+    toast.innerHTML = `
+      <div class="notification-icon">${icon}</div>
+      <div class="notification-body">
+        <div class="notification-title">${title}</div>
+        ${messages.map(m => `<div class="notification-msg">${m}</div>`).join('')}
+      </div>
+      <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    this.container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('show'); }, 10);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 8000);
+  },
+
+  checkAndShow() {
+    const expired = Store.getExpired();
+    const expiring = Store.getExpiringSoon(3);
+    const lowStock = Store.getLowStock();
+
+    if (expired.length > 0) {
+      this.show(
+        'Productos Vencidos',
+        expired.map(p => `${p.name} — vencido el ${new Date(p.expirationDate).toLocaleDateString('es-MX')}`),
+        'danger'
+      );
+    }
+    if (expiring.length > 0) {
+      this.show(
+        'Por Vencer (≤ 3 días)',
+        expiring.map(p => `${p.name} — ${Store.daysUntilExpiry(p.expirationDate)} día(s)`),
+        'warning'
+      );
+    }
+    if (lowStock.length > 0) {
+      this.show(
+        'Stock Bajo',
+        lowStock.map(p => `${p.name} — solo ${p.stock} unidad(es) (mín: ${p.minStock})`),
+        'info'
+      );
+    }
+    if (expired.length === 0 && expiring.length === 0 && lowStock.length === 0) {
+      this.show(
+        'Todo en orden',
+        ['No hay productos vencidos, próximos a vencer ni con stock bajo.'],
+        'info'
+      );
+    }
   }
 };
 

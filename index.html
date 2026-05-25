@@ -3,11 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bimbo | Punto de Venta</title>
     <link rel="stylesheet" href="Styles/style.css">
     <link rel="stylesheet" href="Styles/nav.css">
     <link rel="stylesheet" href="Styles/ticket.css">
+    <link rel="stylesheet" href="Styles/inventory.css">
+    <link rel="stylesheet" href="Styles/reports.css">
+    <link rel="stylesheet" href="Styles/history.css">
 </head>
 
 <body>
@@ -27,51 +30,359 @@
     <div class="app-wrapper" id="appWrapper">
 
         <nav class="navbar">
-            <div class="brand" onclick="location.href='index.html'">
+            <div class="brand" onclick="navigateTo('pos')">
                 <img src="logo-bimbo.png" alt="Bimbo" class="nav-logo">
-                <span>Punto de Venta</span>
+                <span id="brandText">Punto de Venta</span>
             </div>
-            <ul class="nav-menu">
-                <li><a class="nav-link active" href="index.html">Comprar</a></li>
-                <li><a class="nav-link" href="inventario.html">Inventario</a></li>
-                <li><a class="nav-link" href="reportes.html">Reportes</a></li>
+            <ul class="nav-menu" id="navMenu">
+                <li><a class="nav-link active" data-page="pos" href="#" onclick="return navigateTo('pos')">Comprar</a></li>
+                <li><a class="nav-link" data-page="inventory" href="#" onclick="return navigateTo('inventory')">Inventario</a></li>
+                <li><a class="nav-link" data-page="history" href="#" onclick="return navigateTo('history')">Historial</a></li>
+                <li><a class="nav-link" data-page="reports" href="#" onclick="return navigateTo('reports')">Reportes</a></li>
             </ul>
         </nav>
 
-        <main class="pos-container">
-            <div class="pos-left">
-                <section class="section-card">
-                    <h2>Nueva Venta</h2>
-                    <div class="barcode-input-group">
-                        <input type="text" id="barcodeInput" placeholder="Escanear código de barras..." autofocus>
-                        <button onclick="addByBarcode()">Agregar</button>
+        <main id="mainContent">
+
+            <!-- ========== POS ========== -->
+            <div class="page-section" id="page-pos" style="display:none">
+                <div class="pos-container">
+                    <div class="pos-left">
+                        <section class="section-card">
+                            <h2>Nueva Venta</h2>
+                            <div class="barcode-input-group">
+                                <input type="text" id="barcodeInput" placeholder="Escanear código de barras..." autofocus>
+                                <button onclick="addByBarcode()">Agregar</button>
+                            </div>
+                            <p class="hint">También puedes buscar por nombre:</p>
+                            <input type="text" id="searchInput" placeholder="Buscar producto..." oninput="renderProductGrid()">
+                            <div class="product-grid" id="productGrid"></div>
+                        </section>
                     </div>
-                    <p class="hint">También puedes buscar por nombre:</p>
-                    <input type="text" id="searchInput" placeholder="Buscar producto..." oninput="renderProductGrid()">
-                    <div class="product-grid" id="productGrid"></div>
-                </section>
+                    <div class="pos-right">
+                        <section class="section-card cart-card">
+                            <h2>Carrito</h2>
+                            <div class="cart-items" id="cartItems">
+                                <div class="cart-empty">El carrito está vacío</div>
+                            </div>
+                            <div class="cart-summary" id="cartSummary" style="display:none">
+                                <div class="summary-row total-row"><span>TOTAL:</span><span id="total">$0.00</span></div>
+                                <div class="summary-row">
+                                    <span>Recibo:</span>
+                                    <input type="number" id="reciboInput" class="cash-input" placeholder="$0.00" oninput="calcularCambio()">
+                                </div>
+                                <div class="summary-row">
+                                    <span>Cambio:</span>
+                                    <strong id="cambioDisplay" class="cambio-display">$0.00</strong>
+                                </div>
+                                <button class="btn-checkout" onclick="checkout()">Cobrar e Imprimir Ticket</button>
+                                <button class="btn-clear" onclick="clearCart()">Vaciar Carrito</button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
             </div>
-            <div class="pos-right">
-                <section class="section-card cart-card">
-                    <h2>Carrito</h2>
-                    <div class="cart-items" id="cartItems">
-                        <div class="cart-empty">El carrito está vacío</div>
-                    </div>
-                    <div class="cart-summary" id="cartSummary" style="display:none">
-                        <div class="summary-row total-row"><span>TOTAL:</span><span id="total">$0.00</span></div>
-                        <div class="summary-row">
-                            <span>Recibo:</span>
-                            <input type="number" id="reciboInput" class="cash-input" placeholder="$0.00" oninput="calcularCambio()">
+
+            <!-- ========== INVENTARIO ========== -->
+            <div class="page-section" id="page-inventory" style="display:none">
+                <div class="container">
+                    <section class="section-card">
+                        <div class="inventory-header">
+                            <h2>Inventario de Productos</h2>
+                            <div class="inv-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="exportarInventario()">Exportar</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">Importar</button>
+                                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarInventario(event)">
+                                <button class="btn btn-primary" onclick="openModal()">+ Registrar</button>
+                                <button class="btn btn-sm btn-danger" onclick="resetSystem()">Restablecer</button>
+                            </div>
                         </div>
-                        <div class="summary-row">
-                            <span>Cambio:</span>
-                            <strong id="cambioDisplay" class="cambio-display">$0.00</strong>
+                        <div class="inventory-tools">
+                            <div class="search-box">
+                                <input type="text" id="searchInputInv" placeholder="Buscar por nombre, código o categoría..." oninput="renderInventoryTable()">
+                            </div>
+                            <div class="filter-group">
+                                <select id="filterCategory" onchange="renderInventoryTable()">
+                                    <option value="">Todas las categorías</option>
+                                </select>
+                                <select id="filterExpiry" onchange="renderInventoryTable()">
+                                    <option value="">Todos</option>
+                                    <option value="expired">Vencidos</option>
+                                    <option value="soon">Por vencer (7 días)</option>
+                                    <option value="low">Stock bajo</option>
+                                </select>
+                            </div>
                         </div>
-                        <button class="btn-checkout" onclick="checkout()">Cobrar e Imprimir Ticket</button>
-                        <button class="btn-clear" onclick="clearCart()">Vaciar Carrito</button>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Stock</th>
+                                        <th>Precio</th>
+                                        <th>Caducidad</th>
+                                        <th>Días</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-body"></tbody>
+                            </table>
+                        </div>
+                        <div id="emptyState" class="empty-state" style="display:none">
+                            <p>No se encontraron productos</p>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="productModal" class="modal" style="display:none">
+                    <div class="modal-overlay" onclick="closeModal()"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="modalTitle">Registrar Producto</h3>
+                            <button class="modal-close" onclick="closeModal()">&times;</button>
+                        </div>
+                        <form id="productForm" onsubmit="saveProduct(event)" autocomplete="off">
+                            <input type="hidden" id="editBarcode" autocomplete="off">
+                            <div id="dupBarcodeWarning" class="duplicate-warning">
+                                ⚠ El producto <strong id="dupBarcodeName"></strong> ya está registrado con este código
+                            </div>
+                            <div id="dupNameWarning" class="duplicate-warning">
+                                ⚠ Ya existe un producto con el nombre "<strong id="dupNameName"></strong>"
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="barcode">Código de Barras</label>
+                                    <input type="text" id="barcode" required placeholder="Escanea o escribe el código..." oninput="checkDuplicateBarcode()" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Nombre del Producto</label>
+                                    <input type="text" id="name" required placeholder="Ej: Pan Blanco Grande" oninput="checkDuplicateName()" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category">Categoría</label>
+                                    <input type="text" id="category" list="categoryList" required placeholder="Escribe o selecciona..." autocomplete="off">
+                                    <datalist id="categoryList"></datalist>
+                                </div>
+                                <div class="form-group">
+                                    <label for="price">Precio ($)</label>
+                                    <input type="number" id="price" step="0.01" min="0" required placeholder="0.00" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="stock">Stock Actual</label>
+                                    <input type="number" id="stock" min="0" required placeholder="0" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label for="minStock">Stock Mínimo</label>
+                                    <input type="number" id="minStock" min="0" required placeholder="5" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expirationDate">Fecha de Caducidad</label>
+                                <input type="date" id="expirationDate" required autocomplete="off">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </form>
                     </div>
-                </section>
+                </div>
             </div>
+
+            <!-- ========== HISTORIAL ========== -->
+            <div class="page-section" id="page-history" style="display:none">
+                <div class="container">
+                    <section class="section-card">
+                        <div class="history-header">
+                            <h2>Historial de Ventas</h2>
+                            <div class="history-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="exportarHistorial()">Exportar</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importHistoryFile').click()">Importar</button>
+                                <input type="file" id="importHistoryFile" accept=".json" style="display:none" onchange="importarHistorial(event)">
+                            </div>
+                        </div>
+                        <div class="history-tools">
+                            <div class="date-filter">
+                                <div class="date-field">
+                                    <label for="filterDateFrom">Desde</label>
+                                    <input type="date" id="filterDateFrom" onchange="renderHistory()">
+                                </div>
+                                <div class="date-field">
+                                    <label for="filterDateTo">Hasta</label>
+                                    <input type="date" id="filterDateTo" onchange="renderHistory()">
+                                </div>
+                                <div class="date-field">
+                                    <label for="filterSearch">Buscar ticket</label>
+                                    <input type="text" id="filterSearch" placeholder="ID del ticket..." oninput="renderHistory()">
+                                </div>
+                                <button class="btn btn-sm" onclick="resetFilters()">Limpiar</button>
+                            </div>
+                        </div>
+                        <div id="historyTotals" class="history-totals"></div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket</th>
+                                        <th>Fecha</th>
+                                        <th>Productos</th>
+                                        <th>Total</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyBody"></tbody>
+                            </table>
+                        </div>
+                        <div id="emptyHistory" class="empty-state" style="display:none">
+                            <p>No se encontraron ventas</p>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="saleDetailModal" class="modal" style="display:none">
+                    <div class="modal-overlay" onclick="closeSaleDetail()"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="detailModalTitle">Detalle de Venta</h3>
+                            <button class="modal-close" onclick="closeSaleDetail()">&times;</button>
+                        </div>
+                        <div id="saleDetailBody"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== REPORTES ========== -->
+            <div class="page-section" id="page-reports" style="display:none">
+                <div class="container">
+                    <section class="section-card">
+                        <h2>Reportes de Ventas e Inventario</h2>
+
+                        <div class="reports-section-title">Ventas</div>
+                        <div class="chart-tabs">
+                            <button class="chart-tab active" data-period="day" onclick="switchChartPeriod('day')">Día</button>
+                            <button class="chart-tab" data-period="week" onclick="switchChartPeriod('week')">Semana</button>
+                            <button class="chart-tab" data-period="month" onclick="switchChartPeriod('month')">Mes</button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                        <div class="reports-summary">
+                            <div class="report-stat">
+                                <span>Ventas del Día</span>
+                                <strong id="todaySales" style="color:#2e7d32">0</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Ingresos del Día</span>
+                                <strong id="todayRevenue" style="color:#2e7d32">$0.00</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Ventas Totales</span>
+                                <strong id="totalSales">0</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Ingresos Totales</span>
+                                <strong id="totalRevenue" style="color:#2e7d32">$0.00</strong>
+                            </div>
+                        </div>
+
+                        <div class="report-section">
+                            <h3>Productos Más Vendidos</h3>
+                            <div class="chart-tabs">
+                                <button class="chart-tab active" data-top="day" onclick="switchTopPeriod('day')">Día</button>
+                                <button class="chart-tab" data-top="week" onclick="switchTopPeriod('week')">Semana</button>
+                                <button class="chart-tab" data-top="month" onclick="switchTopPeriod('month')">Mes</button>
+                            </div>
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Producto</th>
+                                            <th>Unidades Vendidas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topProductsBody"></tbody>
+                                </table>
+                            </div>
+                            <p class="table-empty" id="noTopProducts">Aún no hay ventas registradas</p>
+                        </div>
+
+                        <hr class="report-divider">
+
+                        <div class="reports-section-title">Inventario</div>
+                        <div class="reports-summary">
+                            <div class="report-stat">
+                                <span>Total de Productos</span>
+                                <strong id="totalProducts">0</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Stock Total (unidades)</span>
+                                <strong id="totalStock">0</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Por Vencer (7 días)</span>
+                                <strong id="expiringSoon" style="color:#e65100">0</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Vencidos</span>
+                                <strong id="expired" style="color:#c62828">0</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Stock Bajo</span>
+                                <strong id="lowStock" style="color:#c62828">0</strong>
+                            </div>
+                            <div class="report-stat">
+                                <span>Valor del Inventario</span>
+                                <strong id="totalValue" style="color:#2e7d32">$0.00</strong>
+                            </div>
+                        </div>
+                        <div class="report-tables">
+                            <div class="report-section">
+                                <h3>Productos por Vencer (próximos 7 días)</h3>
+                                <div class="table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Código</th>
+                                                <th>Producto</th>
+                                                <th>Stock</th>
+                                                <th>Caducidad</th>
+                                                <th>Días</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expiringBody"></tbody>
+                                    </table>
+                                </div>
+                                <p class="table-empty" id="noExpiring">Sin productos próximos a vencer</p>
+                            </div>
+                            <div class="report-section">
+                                <h3>Stock Bajo</h3>
+                                <div class="table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Código</th>
+                                                <th>Producto</th>
+                                                <th>Stock</th>
+                                                <th>Mínimo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="lowStockBody"></tbody>
+                                    </table>
+                                </div>
+                                <p class="table-empty" id="noLowStock">Sin productos con stock bajo</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
         </main>
 
         <footer>
@@ -80,8 +391,13 @@
 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="Scripts/inventory.js"></script>
+    <script src="Scripts/router.js"></script>
     <script src="Scripts/pos.js"></script>
+    <script src="Scripts/inventory-page.js"></script>
+    <script src="Scripts/history.js"></script>
+    <script src="Scripts/reports.js"></script>
     <script src="Scripts/auth.js"></script>
 </body>
 

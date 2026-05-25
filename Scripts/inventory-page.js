@@ -1,9 +1,12 @@
 Store.seedIfEmpty();
 Store.seedCategories();
 
-function onAppReady() {
-    renderInventoryTable();
-    populateCategoryDropdowns();
+function initInventory() {
+    if (document.getElementById('inventory-body').children.length === 0) {
+        renderInventoryTable();
+        populateCategoryDropdowns();
+    }
+    setTimeout(() => { if (typeof Notifications !== 'undefined') Notifications.checkAndShow(); }, 600);
 }
 
 function populateCategoryDropdowns() {
@@ -164,6 +167,13 @@ function exportarInventario() {
     a.download = 'inventario_' + new Date().toISOString().slice(0, 10) + '.json';
     a.click();
     URL.revokeObjectURL(a.href);
+}
+
+function resetSystem() {
+    if (!confirm('¿Restablecer todo el sistema?\n\nSe eliminarán TODOS los productos, ventas y categorías.\nLos datos de muestra se volverán a generar automáticamente.\n\nEsta acción NO se puede deshacer.')) return;
+    if (!confirm('¿Estás SEGURO? Todos los datos se perderán permanentemente.')) return;
+    Store.resetAllData();
+    location.reload();
 }
 
 function importarInventario(e) {

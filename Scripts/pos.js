@@ -8,7 +8,7 @@ document.getElementById('barcodeInput')?.addEventListener('keydown', function (e
     if (e.key === 'Enter') addByBarcode();
 });
 
-function onAppReady() {
+function initPOS() {
     renderProductGrid();
     document.getElementById('barcodeInput')?.focus();
 }

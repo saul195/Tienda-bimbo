@@ -89,9 +89,19 @@
 }
 
 @media (max-width: 480px) {
-    .navbar { padding: 0.3rem 0.5rem; }
+    .navbar { padding: 0.3rem 0.5rem; flex-wrap: wrap; }
+    .brand { gap: 5px; }
     .brand span { display: none; }
-    .nav-logo { height: 28px; }
-    .nav-link { font-size: 0.78rem; padding: 3px 6px; }
-    .nav-menu { gap: 3px; }
+    .nav-logo { height: 26px; }
+    .nav-link { font-size: 0.72rem; padding: 3px 5px; }
+    .nav-menu { gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+}
+
+@media (max-width: 360px) {
+    .navbar { flex-direction: column; gap: 4px; padding: 0.3rem 0.5rem; }
+    .brand { align-self: flex-start; }
+    .nav-menu { justify-content: center; width: 100%; }
+    .nav-link { font-size: 0.68rem; padding: 2px 4px; }
+    .nav-link.active::after { display: none; }
+    .nav-logo { height: 24px; }
 }

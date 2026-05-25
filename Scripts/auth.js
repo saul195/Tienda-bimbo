@@ -55,7 +55,7 @@ function doLogin() {
         document.addEventListener('mousedown', resetInactivityTimer);
         document.addEventListener('keydown', resetInactivityTimer);
         document.addEventListener('touchstart', resetInactivityTimer);
-        if (typeof onAppReady === 'function') onAppReady();
+        if (typeof navigateTo === 'function') navigateTo(window.__initialPage || 'pos');
     } else {
         document.getElementById('loginError').classList.add('show');
         document.getElementById('loginPassword').value = '';
@@ -73,6 +73,6 @@ if (checkSession()) {
         document.addEventListener('mousedown', resetInactivityTimer);
         document.addEventListener('keydown', resetInactivityTimer);
         document.addEventListener('touchstart', resetInactivityTimer);
-        if (typeof onAppReady === 'function') onAppReady();
+        if (typeof navigateTo === 'function') navigateTo(window.__initialPage || 'pos');
     }
 }
